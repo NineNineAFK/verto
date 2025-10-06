@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Store</title>
+  <style>
+    body{font-family:Arial, sans-serif;background:#f7f7f9;margin:0}
+    .container{max-width:1100px;margin:18px auto;padding:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+    .card{background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
+    .low{border-color:#dc3545;background:#fff5f5}
+    .controls{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  </style>
+</head>
+<body>
+  <nav style="background:#333;padding:12px;color:#fff">
+    <a href="/home" style="color:#fff;margin-right:12px">Home</a>
+    <a href="/home/inventory" style="color:#fff">Inventory</a>
+  </nav>
+  <div class="container">
+    <h1>Store</h1>
+    <div class="controls">
+      <label><input type="checkbox" id="lowOnly" /> Show only low stock</label>
+      <button id="refreshBtn">Refresh</button>
+    </div>
+
+    <div id="products" class="grid"></div>
+  </div>
+
+  <script>
+    const productsEl = document.getElementById('products');
+    const lowOnly = document.getElementById('lowOnly');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    async function fetchProducts(){
+      productsEl.innerHTML = 'Loading...';
+      try{
+        const low = lowOnly.checked ? '&low=1' : '';
+        const res = await fetch('/home/store?format=json' + low);
+        if (!res.ok) throw new Error('failed');
+        const data = await res.json();
+        render(data);
+      }catch(e){
+        productsEl.innerHTML = '<div>Error loading products</div>'
+      }
+    }
+
+    function render(data){
+      const onlyLow = lowOnly.checked;
+      const list = onlyLow ? data.filter(p => (p.stock_quantity || 0) <= (p.low_stock_threshold || 0)) : data;
+      if (!list.length){ productsEl.innerHTML = '<div>No products</div>'; return }
+      productsEl.innerHTML = list.map(p => `
+        <div class="card ${((p.stock_quantity||0) <= (p.low_stock_threshold||0)) ? 'low' : ''}">
+          <div style="display:flex;justify-content:space-between">
+            <strong>${escapeHtml(p.name)}</strong>
+            <small>₹${p.price||0}</small>
+          </div>
+          <div style="margin-top:6px">${escapeHtml(p.description||'')}</div>
+          <div style="margin-top:8px;color:#666">Stock: ${p.stock_quantity||0} | Low threshold: ${p.low_stock_threshold||0}</div>
+          <div style="margin-top:8px;color:#666">Warehouse: ${p.warehouse && p.warehouse.location ? escapeHtml(p.warehouse.location) : 'N/A'}</div>
+          <div style="margin-top:6px;color:#666">Owner: ${p.warehouse && p.warehouse.owner ? escapeHtml(p.warehouse.owner.name || '') : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+    }
+
+    refreshBtn.addEventListener('click', fetchProducts);
+    lowOnly.addEventListener('change', fetchProducts);
+
+    // initial load
+    fetchProducts();
+  </script>
+</body>
+</html>

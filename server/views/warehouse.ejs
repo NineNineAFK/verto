@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warehouse Details</title>
+  <style>
+    body{font-family:Arial, sans-serif; background:#f7f7f9; margin:0}
+    .container{max-width:1100px;margin:18px auto;padding:16px}
+    .card{background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+    .meta{color:#666;margin-top:6px}
+    a.button{display:inline-block;padding:8px 12px;background:#007BFF;color:#fff;border-radius:6px;text-decoration:none}
+    .header-right{display:flex;flex-direction:column;align-items:flex-end}
+    .header-right .title{font-size:1rem;font-weight:600}
+    .header-right .sub{font-size:0.85rem;color:#666}
+    .product-card{background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
+    .low-stock{border-color:#dc3545;background:#fff5f5;box-shadow:0 0 0 3px rgba(220,53,69,0.03)}
+    input[type=text],input[type=number]{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;margin-top:6px}
+    form.inline{display:inline}
+    @media(max-width:900px){.header-right{align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <nav style="display:flex;justify-content:space-between;background:#333;color:#fff;padding:12px 16px">
+    <div>
+      <a href="/home" style="color:#fff;text-decoration:none;margin-right:12px">Home</a>
+      <a href="/home/store" style="color:#fff;text-decoration:none;margin-right:12px">Store</a>
+      <a href="/home/inventory" style="color:#fff;text-decoration:none">Inventory</a>
+    </div>
+    <div>
+      <a href="/user/profile" style="color:#fff;text-decoration:none">User Profile</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
+      <a href="/home/inventory" class="button">← Back to Inventory</a>
+      <div style="text-align:right">
+        <div style="font-size:1.1rem;font-weight:600"><%= warehouse.location %></div>
+        <div style="font-size:0.9rem;color:#666">Manager: <%= warehouse.manager || 'N/A' %> — <%= warehouse.managerEmail %></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:20px">
+      <div style="flex:1">
+        <h3>Products</h3>
+        <div style="margin-bottom:8px">
+          <button id="show-low-btn">Show low stock</button>
+          <button id="hide-low-btn" style="display:none;margin-left:8px">Hide low stock</button>
+          <button id="show-audit-btn" style="margin-left:12px">Show audit</button>
+          <button id="hide-audit-btn" style="display:none;margin-left:8px">Hide audit</button>
+        </div>
+        <div id="low-stock-container" style="display:none;margin-bottom:12px"></div>
+        <div id="audit-container" style="display:none;margin-bottom:12px"></div>
+        <% if (products && products.length) { %>
+          <div id="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+            <% products.forEach(function(p){ %>
+              <div class="product-card <%= (p.stock_quantity <= p.low_stock_threshold) ? 'low-stock' : '' %>">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <strong><%= p.name %></strong>
+                  <div style="font-size:0.85rem;color:#666">Price: ₹<%= p.price %></div>
+                </div>
+                <div style="margin-top:6px;color:#555"><%= p.description || '' %></div>
+                <div style="margin-top:8px" class="meta">Stock: <%= p.stock_quantity %> | Low threshold: <%= p.low_stock_threshold %></div>
+
+                <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+                  <form action="/home/inventory/<%= warehouse._id %>/products/<%= p._id %>/decrease" method="post" style="display:inline">
+                    <button type="submit">-</button>
+                  </form>
+                  <form action="/home/inventory/<%= warehouse._id %>/products/<%= p._id %>/increase" method="post" style="display:inline">
+                    <button type="submit">+</button>
+                  </form>
+                  <form action="/home/inventory/<%= warehouse._id %>/products/<%= p._id %>/delete" method="post" style="margin-left:auto">
+                    <button type="submit">Delete</button>
+                  </form>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p>No products yet.</p>
+        <% } %>
+      </div>
+
+      <aside style="width:360px">
+        <div class="card">
+          <h3>Add Product</h3>
+          <form action="/home/inventory/<%= warehouse._id %>/products/add" method="post">
+            <div>
+              <label>Name</label>
+              <input type="text" name="name" required />
+            </div>
+            <div>
+              <label>Description</label>
+              <input type="text" name="description" />
+            </div>
+            <div>
+              <label>Price</label>
+              <input type="number" name="price" min="0" step="0.01" />
+            </div>
+            <div>
+              <label>Stock Quantity</label>
+              <input type="number" name="stock_quantity" min="0" value="0" />
+            </div>
+            <div>
+              <label>Low Stock Threshold</label>
+              <input type="number" name="low_stock_threshold" min="0" value="0" />
+            </div>
+            <div style="text-align:right;margin-top:8px">
+              <button type="submit">Add Product</button>
+            </div>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script>
+    (function(){
+  const showBtn = document.getElementById('show-low-btn');
+  const hideBtn = document.getElementById('hide-low-btn');
+  const container = document.getElementById('low-stock-container');
+  const showAuditBtn = document.getElementById('show-audit-btn');
+  const hideAuditBtn = document.getElementById('hide-audit-btn');
+  const auditContainer = document.getElementById('audit-container');
+  const mainGrid = document.getElementById('products-grid');
+      const warehouseId = '<%= warehouse._id %>';
+
+      async function fetchLow() {
+        container.innerHTML = 'Loading...';
+        container.style.display = 'block';
+        try {
+          const res = await fetch(`/home/inventory/${warehouseId}/products/low`);
+          if (!res.ok) {
+            container.innerHTML = 'Error fetching low-stock products';
+            return;
+          }
+          const html = await res.text();
+          if (!html || !html.trim()) {
+            container.innerHTML = '<em>No low-stock products</em>';
+            return;
+          }
+          container.innerHTML = html;
+          // hide the main products grid so only low-stock items are visible
+          if (mainGrid) mainGrid.style.display = 'none';
+          hideBtn.style.display = 'inline-block';
+        } catch (e) {
+          console.error(e);
+          container.innerHTML = 'Error fetching low-stock products';
+        }
+      }
+
+      async function fetchAudit() {
+        auditContainer.innerHTML = 'Loading...';
+        auditContainer.style.display = 'block';
+        try {
+          const res = await fetch(`/home/inventory/${warehouseId}/audit?fragment=1`);
+          if (!res.ok) {
+            auditContainer.innerHTML = 'Error fetching audit';
+            return;
+          }
+          const html = await res.text();
+          if (!html || !html.trim()) {
+            auditContainer.innerHTML = '<em>No audit entries</em>';
+            return;
+          }
+          auditContainer.innerHTML = html;
+          if (mainGrid) mainGrid.style.display = 'none';
+          hideAuditBtn.style.display = 'inline-block';
+        } catch (e) {
+          console.error(e);
+          auditContainer.innerHTML = 'Error fetching audit';
+        }
+      }
+
+      showBtn && showBtn.addEventListener('click', fetchLow);
+      hideBtn && hideBtn.addEventListener('click', function(){ 
+        container.style.display='none';
+        hideBtn.style.display='none';
+        if (mainGrid) mainGrid.style.display = 'grid';
+      });
+
+      showAuditBtn && showAuditBtn.addEventListener('click', fetchAudit);
+      hideAuditBtn && hideAuditBtn.addEventListener('click', function(){ 
+        auditContainer.style.display='none';
+        hideAuditBtn.style.display='none';
+        if (mainGrid) mainGrid.style.display = 'grid';
+      });
+    })();
+  </script>
+</body>
+</html>

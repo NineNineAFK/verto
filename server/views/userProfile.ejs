@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body{font-family:Arial, sans-serif;background:#f7f7f9;margin:0}
+    nav{display:flex;justify-content:space-between;background:#333;padding:12px 16px;color:#fff}
+    nav a{color:#fff;text-decoration:none;margin-right:12px}
+    .container{max-width:900px;margin:24px auto;padding:16px}
+    .card{background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+    .meta{color:#666;margin-top:6px}
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="/home">Home</a>
+      <a href="/home/inventory">Inventory</a>
+      <a href="/home/store">Store</a>
+    </div>
+    <div>
+      <a href="/user/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h2>User Profile</h2>
+      <p><strong>Name:</strong> <%= user.name || 'N/A' %></p>
+      <p><strong>Email:</strong> <%= user.email || 'N/A' %></p>
+      <% if (user.photo) { %>
+        <p><strong>Photo:</strong><br/><img src="<%= user.photo %>" alt="profile" style="max-width:160px;border-radius:6px"/></p>
+      <% } %>
+      <% if (user.createdAt) { %>
+        <p class="meta">Member since: <%= new Date(user.createdAt).toLocaleString() %></p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

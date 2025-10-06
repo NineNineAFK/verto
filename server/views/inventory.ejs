@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory</title>
+  <style>
+    :root{ --accent:#007BFF; --muted:#666; --bg:#f7f7f9; }
+    *{box-sizing:border-box}
+    body { font-family: Arial, sans-serif; margin:0; background:var(--bg); color:#222 }
+    nav{display:flex;justify-content:space-between;background:#333;padding:12px 16px;color:#fff}
+    nav a{color:#fff;text-decoration:none;margin-right:12px}
+    .container { max-width:1100px; margin:24px auto; padding:16px; }
+    h1{margin:0 0 12px}
+  .layout{display:flex;gap:20px;align-items:flex-start}
+  .main{flex:1;background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+  aside{width:360px; margin-left:auto}
+  aside .card{background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+  .warehouse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .warehouse-card{background:#fafafa;border:1px solid #eee;padding:12px;border-radius:8px}
+    label{display:block;font-size:0.9rem;color:var(--muted);margin-bottom:6px}
+    input[type=text],input[type=email],input[type=number]{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px}
+    button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer}
+    button:disabled{opacity:0.6;cursor:not-allowed}
+    ul{padding-left:16px}
+    li{padding:10px;border-bottom:1px solid #eee}
+    .meta{font-size:0.9rem;color:var(--muted);margin-top:6px}
+    .error-list{background:#fff0f0;border:1px solid #ffd0d0;padding:10px;border-radius:6px;color:#900;margin-bottom:12px}
+    @media(max-width:900px){.layout{flex-direction:column}aside{width:100%}}
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar (same style as home) -->
+  <nav>
+    <ul style="display:flex; gap:1em; margin:0; padding:0;">
+      <li><a href="/home">Home</a></li>
+      <li><a href="/home/inventory">Inventory</a></li>
+      <li><a href="/home/store">Store</a></li>
+    </ul>
+    <div>
+      <a href="/user/profile">User Profile</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Inventory</h1>
+
+    <% if (errors && errors.length) { %>
+      <div class="error-list">
+        <ul>
+          <% errors.forEach(function(e){ %>
+            <li><%= e %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <div class="layout">
+      <div class="main">
+        <h2>Your Warehouses</h2>
+        <% if (warehouses && warehouses.length) { %>
+          <div class="warehouse-grid">
+            <% warehouses.forEach(function(w){ %>
+              <div class="warehouse-card">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <strong><a href="/home/inventory/<%= w._id %>" style="color:inherit; text-decoration:none;"><%= w.location %></a></strong>
+                  <div>
+                    <button type="button" class="edit-toggle" data-id="<%= w._id %>">Edit</button>
+                    <form action="/home/inventory/<%= w._id %>/delete" method="post" class="delete-form" style="display:inline; margin-left:6px">
+                      <button type="submit">Delete</button>
+                    </form>
+                  </div>
+                </div>
+                <div class="meta">Manager: <%= w.manager || 'N/A' %></div>
+                <div class="meta">Manager Email: <%= w.managerEmail || 'N/A' %></div>
+                <div class="meta">Products: <%= w.productCount || 0 %></div>
+
+                <!-- Inline edit form (hidden by default) -->
+                <form action="/home/inventory/<%= w._id %>/edit" method="post" class="edit-form" id="edit-<%= w._id %>" style="display:none; margin-top:8px;">
+                  <div>
+                    <label>Location</label>
+                    <input type="text" name="location" value="<%= w.location %>" required />
+                  </div>
+                  <div>
+                    <label>Manager</label>
+                    <input type="text" name="manager" value="<%= w.manager || '' %>" />
+                  </div>
+                  <div>
+                    <label>Manager Email</label>
+                    <input type="email" name="managerEmail" value="<%= w.managerEmail || '' %>" required />
+                  </div>
+                  <!-- productCount is computed from actual products; not editable here -->
+                  <div style="margin-top:6px; text-align:right">
+                    <button type="submit">Save</button>
+                    <button type="button" class="edit-toggle" data-id="<%= w._id %>">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p>No warehouses yet.</p>
+        <% } %>
+      </div>
+
+      <aside>
+        <div class="card">
+        <h3 style="margin-top:0;">Add Warehouse</h3>
+        <form action="/home/inventory/add" method="post">
+          <div>
+            <label for="location">Location *</label><br />
+            <input type="text" id="location" name="location" required style="width:100%" />
+          </div>
+          <div>
+            <label for="manager">Manager</label><br />
+            <input type="text" id="manager" name="manager" style="width:100%" />
+          </div>
+          <div>
+            <label for="managerEmail">Manager Email *</label><br />
+            <input type="email" id="managerEmail" name="managerEmail" required style="width:100%" />
+          </div>
+          <div style="margin-top:8px; text-align:right;">
+            <button type="submit">Add Warehouse</button>
+          </div>
+        </form>
+      </aside>
+    </div>
+  </div>
+</body>
+<script>
+  document.addEventListener('click', function(e){
+    const t = e.target;
+    if (t.classList && t.classList.contains('edit-toggle')){
+      const id = t.getAttribute('data-id');
+      const form = document.getElementById('edit-' + id);
+      if (!form) return;
+      form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+    }
+  });
+
+  // Attach confirmation to delete forms
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.delete-form').forEach(function(f){
+      f.addEventListener('submit', function(ev){
+        const ok = confirm('Delete this warehouse? This action cannot be undone. Are you sure?');
+        if (!ok) ev.preventDefault();
+      });
+    });
+  });
+</script>
+</html>

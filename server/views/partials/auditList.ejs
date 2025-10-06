@@ -1,0 +1,20 @@
+<% if (!audits || !audits.length) { %>
+  <p>No audit entries yet.</p>
+<% } else { %>
+  <% audits.forEach(function(a){ %>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div><strong><%= a.action %></strong></div>
+          <div class="muted">Product: <%= a.product ? a.product.name : 'N/A' %></div>
+          <div class="muted">User: <%= a.user ? (a.user.displayName || a.user.email || a.user._id) : a.user %></div>
+        </div>
+        <div class="muted"><%= new Date(a.createdAt).toLocaleString() %></div>
+      </div>
+      <div style="margin-top:8px">Delta: <strong><%= a.delta != null ? a.delta : 'N/A' %></strong></div>
+      <% if (a.details) { %>
+        <div style="margin-top:8px;font-size:0.9rem;color:#333">Details: <pre style="white-space:pre-wrap;max-height:200px;overflow:auto"><%= JSON.stringify(a.details, null, 2) %></pre></div>
+      <% } %>
+    </div>
+  <% }) %>
+<% } %>

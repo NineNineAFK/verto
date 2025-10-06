@@ -1,0 +1,138 @@
+{
+  "info": {
+    "name": "Verto - Store Test",
+    "description": "Postman collection to test login and /home/store route using JWT cookie",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Signup (create test user)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "name", "value": "{{signup_name}}", "type": "text" },
+            { "key": "email", "value": "{{signup_email}}", "type": "text" },
+            { "key": "password", "value": "{{signup_password}}", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:3000/user/signup",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["user","signup"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// After signup, copy the signup credentials into collection variables so Login can reuse them",
+              "pm.collectionVariables.set('email', pm.variables.get('signup_email'));",
+              "pm.collectionVariables.set('password', pm.variables.get('signup_password'));",
+              "console.log('Copied signup credentials to collection variables');"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login (get uid cookie)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "email", "value": "{{email}}", "type": "text" },
+            { "key": "password", "value": "{{password}}", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:3000/user/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["user","login"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Save uid cookie from Set-Cookie header or cookie jar into a collection variable 'uid'",
+              "(() => {",
+              "  const cookieHeader = pm.response.headers.get('Set-Cookie');",
+              "  if (cookieHeader) {",
+              "    // attempt to extract uid=... portion",
+              "    const match = cookieHeader.match(/uid=([^;]+)/);",
+              "    if (match) {",
+              "      pm.collectionVariables.set('uid', match[1]);",
+              "      console.log('Saved uid from Set-Cookie to collection variable');",
+              "    }",
+              "  }",
+              "  // fallback: try cookies in the cookie jar",
+              "  pm.cookies.toObject && Object.keys(pm.cookies.toObject()).length && (() => {",
+              "    const c = pm.cookies.get('uid');",
+              "    if (c) { pm.collectionVariables.set('uid', c); console.log('Saved uid from cookie jar'); }",
+              "  })();",
+              "})();"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Store (use uid cookie)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "uid={{uid}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/home/store?format=json",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["home","store"],
+          "query": [
+            { "key": "format", "value": "json" }
+          ]
+        }
+      },
+      "response": [],
+      "event": []
+    }
+  ],
+  "variable": [
+    { "key": "signup_name", "value": "Test User" },
+    { "key": "signup_email", "value": "test@example.com" },
+    { "key": "signup_password", "value": "password123" },
+    { "key": "email", "value": "test@example.com" },
+    { "key": "password", "value": "password123" },
+    { "key": "uid", "value": "" }
+  ]
+}

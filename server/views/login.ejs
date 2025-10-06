@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+   <h1>Login</h1>
+     <% if (typeof message !== 'undefined' && message) { %>
+         <div style="color:green"><%= message %></div>
+     <% } %>
+     <% if (typeof error !== 'undefined' && error) { %>
+         <div style="color:red"><%- error %></div>
+     <% } %>
+  
+   <form action="/user/login" method="post">
+      <label>Email</label>
+      <input type="text" name="email" id="">
+      <label>Password</label>
+      <input type="password" name="password" id="">
+      <button type="submit">Login</button>
+   </form>
+    <div style="margin-top:12px; display:flex; gap:12px; align-items:center">
+       <a href="/auth/google/login">Continue with Google</a>
+   <a href="/user/signup">Sign up</a>
+       <a href="/open/home">home</a>
+    </div>
+</body>
+</html>

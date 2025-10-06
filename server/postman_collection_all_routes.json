@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "Verto - All Routes",
+    "description": "Auto-generated collection of all GET/POST routes in the app (for local testing). Update variables as needed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Open Routes",
+      "item": [
+        {
+          "name": "GET /open",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:3000/open", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["open"] }
+          }
+        },
+        {
+          "name": "GET /open/home",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:3000/open/home", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["open","home"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Routes",
+      "item": [
+        {
+          "name": "GET /user/signup",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/user/signup", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","signup"] } }
+        },
+        {
+          "name": "POST /user/signup",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": { "mode": "urlencoded", "urlencoded": [ { "key": "name" }, { "key": "email" }, { "key": "password" } ] },
+            "url": { "raw": "http://localhost:3000/user/signup", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","signup"] }
+          }
+        },
+        {
+          "name": "POST /user/login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": { "mode": "urlencoded", "urlencoded": [ { "key": "email" }, { "key": "password" } ] },
+            "url": { "raw": "http://localhost:3000/user/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","login"] }
+          }
+        },
+        {
+          "name": "GET /user/login",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/user/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","login"] } }
+        },
+        {
+          "name": "POST /user/logout",
+          "request": { "method": "POST", "url": { "raw": "http://localhost:3000/user/logout", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","logout"] } }
+        },
+        {
+          "name": "GET /user/logout",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/user/logout", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","logout"] } }
+        },
+        {
+          "name": "GET /user/forgot-password",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/user/forgot-password", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","forgot-password"] } }
+        },
+        {
+          "name": "POST /user/forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": { "mode": "urlencoded", "urlencoded": [ { "key": "email" } ] },
+            "url": { "raw": "http://localhost:3000/user/forgot-password", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","forgot-password"] }
+          }
+        },
+        {
+          "name": "GET /user/reset-password/:token",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/user/reset-password/:token", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","reset-password",":token"] } }
+        },
+        {
+          "name": "POST /user/reset-password/:token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": { "mode": "urlencoded", "urlencoded": [ { "key": "password" } ] },
+            "url": { "raw": "http://localhost:3000/user/reset-password/:token", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","reset-password",":token"] }
+          }
+        },
+        {
+          "name": "GET /user/profile",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/user/profile", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["user","profile"] } }
+        }
+      ]
+    },
+    {
+      "name": "Auth Routes",
+      "item": [
+        {
+          "name": "GET /auth/google/signup",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/auth/google/signup", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth","google","signup"] } }
+        },
+        {
+          "name": "GET /auth/google/callback/signup",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/auth/google/callback/signup", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth","google","callback","signup"] } }
+        },
+        {
+          "name": "GET /auth/google/login",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/auth/google/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth","google","login"] } }
+        },
+        {
+          "name": "GET /auth/google/callback/login",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/auth/google/callback/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth","google","callback","login"] } }
+        },
+        {
+          "name": "GET /auth/logout",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/auth/logout", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth","logout"] } }
+        },
+        {
+          "name": "GET /auth/check-auth",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/auth/check-auth", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["auth","check-auth"] } }
+        }
+      ]
+    },
+    {
+      "name": "Inventory / Warehouse Routes",
+      "item": [
+        {
+          "name": "GET /home",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/home", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home"] } }
+        },
+        {
+          "name": "GET /home/inventory",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/home/inventory", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory"] } }
+        },
+        {
+          "name": "GET /home/inventory/:id",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/home/inventory/:id", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":id"] } }
+        },
+        {
+          "name": "POST /home/inventory/add",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }], "body": { "mode": "urlencoded", "urlencoded": [ { "key": "location" }, { "key": "manager" }, { "key": "managerEmail" } ] }, "url": { "raw": "http://localhost:3000/home/inventory/add", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory","add"] } }
+        },
+        {
+          "name": "POST /home/inventory/:id/delete",
+          "request": { "method": "POST", "url": { "raw": "http://localhost:3000/home/inventory/:id/delete", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":id","delete"] } }
+        },
+        {
+          "name": "POST /home/inventory/:id/edit",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }], "body": { "mode": "urlencoded", "urlencoded": [ { "key": "location" }, { "key": "manager" }, { "key": "managerEmail" } ] }, "url": { "raw": "http://localhost:3000/home/inventory/:id/edit", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":id","edit"] } }
+        }
+      ]
+    },
+    {
+      "name": "Products Routes",
+      "item": [
+        {
+          "name": "POST /home/inventory/:warehouseId/products/add",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }], "body": { "mode": "urlencoded", "urlencoded": [ { "key": "name" }, { "key": "description" }, { "key": "price" }, { "key": "stock_quantity" }, { "key": "low_stock_threshold" } ] }, "url": { "raw": "http://localhost:3000/home/inventory/:warehouseId/products/add", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":warehouseId","products","add"] } }
+        },
+        {
+          "name": "POST /home/inventory/:warehouseId/products/:productId/increase",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }], "body": { "mode": "urlencoded", "urlencoded": [ { "key": "amount" } ] }, "url": { "raw": "http://localhost:3000/home/inventory/:warehouseId/products/:productId/increase", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":warehouseId","products",":productId","increase"] } }
+        },
+        {
+          "name": "POST /home/inventory/:warehouseId/products/:productId/decrease",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }], "body": { "mode": "urlencoded", "urlencoded": [ { "key": "amount" } ] }, "url": { "raw": "http://localhost:3000/home/inventory/:warehouseId/products/:productId/decrease", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":warehouseId","products",":productId","decrease"] } }
+        },
+        {
+          "name": "POST /home/inventory/:warehouseId/products/:productId/delete",
+          "request": { "method": "POST", "url": { "raw": "http://localhost:3000/home/inventory/:warehouseId/products/:productId/delete", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":warehouseId","products",":productId","delete"] } }
+        },
+        {
+          "name": "GET /home/inventory/:warehouseId/products/low",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/home/inventory/:warehouseId/products/low", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":warehouseId","products","low"] } }
+        },
+        {
+          "name": "GET /home/inventory/:warehouseId/audit",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/home/inventory/:warehouseId/audit", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","inventory",":warehouseId","audit"] }, "description": "Supports ?fragment=1 to return HTML fragment" }
+        },
+        {
+          "name": "GET /home/store",
+          "request": { "method": "GET", "url": { "raw": "http://localhost:3000/home/store?format=json", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["home","store"], "query": [ { "key": "format", "value": "json" } ] }, "description": "Supports ?low=1 to filter low stock" }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" }
+  ]
+}

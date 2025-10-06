@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Audit - <%= warehouse.location %></title>
+  <style>
+    body{font-family:Arial, Helvetica, sans-serif;background:#f7f7f9;margin:0;padding:16px}
+    .container{max-width:900px;margin:0 auto}
+    .card{background:#fff;padding:12px;border-radius:8px;border:1px solid #eee;margin-bottom:8px}
+    .muted{color:#666;font-size:0.9rem}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/home/inventory/<%= warehouse._id %>">← Back to warehouse</a>
+    <h2>Audit trail — <%= warehouse.location %></h2>
+
+    <% if (!audits || !audits.length) { %>
+      <p>No audit entries yet.</p>
+    <% } else { %>
+      <% audits.forEach(function(a){ %>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div><strong><%= a.action %></strong></div>
+              <div class="muted">Product: <%= a.product ? a.product.name : 'N/A' %></div>
+              <div class="muted">User: <%= a.user ? (a.user.displayName || a.user.email || a.user._id) : a.user %></div>
+            </div>
+            <div class="muted"><%= new Date(a.createdAt).toLocaleString() %></div>
+          </div>
+          <div style="margin-top:8px">Delta: <strong><%= a.delta != null ? a.delta : 'N/A' %></strong></div>
+          <% if (a.details) { %>
+            <div style="margin-top:8px;font-size:0.9rem;color:#333">Details: <pre style="white-space:pre-wrap;max-height:200px;overflow:auto"><%= JSON.stringify(a.details, null, 2) %></pre></div>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</body>
+</html>
