@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventory</title>
+  <link rel="stylesheet" href="/styles.css" />
   <style>
     :root{ --accent:#007BFF; --muted:#666; --bg:#f7f7f9; }
     *{box-sizing:border-box}
@@ -18,6 +19,9 @@
   aside .card{background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
   .warehouse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
   .warehouse-card{background:#fafafa;border:1px solid #eee;padding:12px;border-radius:8px}
+  /* Visual for deleted warehouses */
+  .warehouse-card.deleted{background:#f0f0f0;color:#777;border-color:#e0e0e0;opacity:0.9}
+  .warehouse-card .deleted-tag{display:inline-block;background:#dcdcdc;color:#444;padding:3px 8px;border-radius:999px;font-size:0.75rem;margin-left:8px}
     label{display:block;font-size:0.9rem;color:var(--muted);margin-bottom:6px}
     input[type=text],input[type=email],input[type=number]{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px}
     button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:5px;cursor:pointer}
@@ -27,21 +31,12 @@
     .meta{font-size:0.9rem;color:var(--muted);margin-top:6px}
     .error-list{background:#fff0f0;border:1px solid #ffd0d0;padding:10px;border-radius:6px;color:#900;margin-bottom:12px}
     @media(max-width:900px){.layout{flex-direction:column}aside{width:100%}}
+  .link-button{background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit}
+  .link-button[disabled]{color:#999;cursor:default;text-decoration:none}
   </style>
 </head>
 <body>
-  <!-- Navigation Bar (same style as home) -->
-  <nav>
-    <ul style="display:flex; gap:1em; margin:0; padding:0;">
-      <li><a href="/home">Home</a></li>
-      <li><a href="/home/inventory">Inventory</a></li>
-      <li><a href="/home/store">Store</a></li>
-    </ul>
-    <div>
-      <a href="/user/profile">User Profile</a>
-    </div>
-  </nav>
-
+  <%- include('partials/header') %>
   <div class="container">
     <h1>Inventory</h1>
 
@@ -61,14 +56,27 @@
         <% if (warehouses && warehouses.length) { %>
           <div class="warehouse-grid">
             <% warehouses.forEach(function(w){ %>
-              <div class="warehouse-card">
+              <div class="warehouse-card <%= w.deleted ? 'deleted' : '' %>">
                 <div style="display:flex;justify-content:space-between;align-items:center">
                   <strong><a href="/home/inventory/<%= w._id %>" style="color:inherit; text-decoration:none;"><%= w.location %></a></strong>
+                  <% if (w.deleted) { %>
+                    <span class="deleted-tag">Deleted</span>
+                  <% } %>
                   <div>
-                    <button type="button" class="edit-toggle" data-id="<%= w._id %>">Edit</button>
+                    <% if (!w.deleted) { %>
+                      <button type="button" class="edit-toggle" data-id="<%= w._id %>">Edit</button>
+                    <% } %>
                     <form action="/home/inventory/<%= w._id %>/delete" method="post" class="delete-form" style="display:inline; margin-left:6px">
-                      <button type="submit">Delete</button>
+                      <button type="submit" <%= w.deleted ? 'disabled' : '' %>><%= w.deleted ? 'Deleted' : 'Delete' %></button>
                     </form>
+                    <% if (w.deleted) { %>
+                      <form action="/home/inventory/<%= w._id %>/restore" method="post" style="display:inline; margin-left:6px">
+                        <button type="submit" class="link-button">Restore</button>
+                      </form>
+                      <form action="/home/inventory/<%= w._id %>/permanent-delete" method="post" class="perma-delete-form" style="display:inline; margin-left:6px">
+                        <button type="submit" class="link-button">Permanently Delete</button>
+                      </form>
+                    <% } %>
                   </div>
                 </div>
                 <div class="meta">Manager: <%= w.manager || 'N/A' %></div>
@@ -126,6 +134,7 @@
       </aside>
     </div>
   </div>
+  <%- include('partials/footer') %>
 </body>
 <script>
   document.addEventListener('click', function(e){
@@ -143,6 +152,12 @@
     document.querySelectorAll('.delete-form').forEach(function(f){
       f.addEventListener('submit', function(ev){
         const ok = confirm('Delete this warehouse? This action cannot be undone. Are you sure?');
+        if (!ok) ev.preventDefault();
+      });
+    });
+    document.querySelectorAll('.perma-delete-form').forEach(function(f){
+      f.addEventListener('submit', function(ev){
+        const ok = confirm('Permanently delete this warehouse and all its products and audit records? This cannot be undone. Proceed?');
         if (!ok) ev.preventDefault();
       });
     });

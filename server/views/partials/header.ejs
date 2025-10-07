@@ -1,0 +1,16 @@
+<nav class="site">
+  <div class="nav-left">
+    <a href="/home">Home</a>
+    <a href="/home/inventory">Inventory</a>
+    <a href="/home/store">Store</a>
+  </div>
+  <div class="nav-right">
+    <% if (typeof user !== 'undefined' && user) { %>
+      <a href="/user/profile"><%= user.displayName || user.email %></a>
+      <a href="/auth/logout">Logout</a>
+      <a href="/home/cart">Cart</a>
+    <% } else { %>
+      <a href="/user/login">Login</a>
+    <% } %>
+  </div>
+</nav>

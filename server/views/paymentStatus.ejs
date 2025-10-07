@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Payment Status</title>
+  <style>body{font-family:Arial;padding:18px}</style>
+</head>
+<body>
+  <h1>Payment Status</h1>
+  <% if (!merchantOrderId) { %>
+    <p>No order specified.</p>
+  <% } else { %>
+    <% if (!order) { %>
+      <p>Order <%= merchantOrderId %> not found. Please contact support.</p>
+    <% } else { %>
+      <p>Order: <%= merchantOrderId %></p>
+      <p>Status: <%= order.paymentStatus %></p>
+      <% if (order.paymentDetails && order.paymentDetails.transactionId) { %>
+        <p>Transaction ID: <%= order.paymentDetails.transactionId %></p>
+      <% } %>
+    <% } %>
+  <% } %>
+  <p><a href="/home/store">Back to store</a></p>
+</body>
+</html>

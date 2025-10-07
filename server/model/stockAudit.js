@@ -5,8 +5,8 @@ const StockAuditSchema = new mongoose.Schema({
   warehouse: { type: mongoose.Schema.Types.ObjectId, ref: 'Warehouse', required: true },
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: false },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  // action: create | increase | decrease | delete | edit
-  action: { type: String, required: true, enum: ['create', 'increase', 'decrease', 'delete', 'edit'] },
+  // action: create | increase | decrease | delete | edit | warehouse_delete
+  action: { type: String, required: true, enum: ['create', 'increase', 'decrease', 'delete', 'edit', 'warehouse_delete', 'warehouse_restore'] },
   // optional numeric delta for stock changes
   delta: { type: Number },
   // flexible details object to store previous/new values or full product snapshot

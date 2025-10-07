@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <%- include('partials/header') %>
+  <div class="container">
+    <h1>Your Cart</h1>
+    <div id="items">Loading...</div>
+    <div id="grandTotal" style="margin-top:12px;font-weight:bold"></div>
+    <div style="margin-top:12px">
+      <a href="/home/store">Continue shopping</a>
+    </div>
+    <div style="margin-top:12px">
+      <button id="proceedPay" class="btn">Proceed to payment</button>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    async function load(){
+      const res = await fetch('/home/cart', { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) { document.getElementById('items').innerText = 'Failed to load'; return }
+      const items = await res.json();
+  if (!items.length) { document.getElementById('items').innerText = 'Cart is empty'; document.getElementById('grandTotal').innerText = ''; return }
+      // render items with per-item total
+      document.getElementById('items').innerHTML = items.map(i=>{
+        const price = i.product.price || 0;
+        const itemTotal = (price * (i.qty||0)).toFixed(2);
+        return `<div class="item"><strong>${i.product.name}</strong> - ₹${price}<br/>Qty: <input type="number" value="${i.qty}" data-prod="${i.product._id}" style="width:60px" /> <button data-prod="${i.product._id}" class="update">Update</button> <button data-prod="${i.product._id}" class="remove">Remove</button><div style="margin-top:6px">Item total: ₹${itemTotal}</div></div>`
+      }).join('');
+
+      // calculate grand total
+      const grand = items.reduce((s,i)=> s + ((i.product.price||0) * (i.qty||0)), 0).toFixed(2);
+      document.getElementById('grandTotal').innerText = `Grand total: ₹${grand}`;
+
+      document.querySelectorAll('.update').forEach(b=> b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-prod');
+        const val = parseInt(document.querySelector(`input[data-prod="${id}"]`).value||'0',10);
+        const r = await fetch(`/home/cart/${id}`, { method: 'POST', headers:{'Content-Type':'application/json', 'Accept':'application/json'}, body: JSON.stringify({ qty: val }) });
+        if (!r.ok) {
+          try {
+            const err = await r.json();
+            if (err && typeof err.available !== 'undefined') {
+              alert(`Exceeded current stock, current stock value: ${err.available}`);
+            } else {
+              alert(err && (err.error || err.message) ? (err.error || err.message) : 'Failed to update cart item');
+            }
+          } catch(e) { const txt = await r.text().catch(()=>null); alert(txt || 'Failed to update cart item'); }
+          return;
+        }
+        load();
+      }));
+
+      document.querySelectorAll('.remove').forEach(b=> b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-prod');
+        const r = await fetch(`/home/cart/${id}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+        if (!r.ok) {
+          try { const err = await r.json(); alert(err && (err.error || err.message) ? (err.error || err.message) : 'Failed to remove cart item'); }
+          catch(e){ const txt = await r.text().catch(()=>null); alert(txt || 'Failed to remove cart item'); }
+          return;
+        }
+        load();
+      }));
+    }
+    load();
+
+    document.getElementById('proceedPay').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/payment/initiate', { method: 'POST', headers: { 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify({}) });
+        if (!res.ok) {
+          const e = await res.json().catch(()=>null);
+          alert((e && (e.message || e.error)) || 'Failed to initiate payment');
+          return;
+        }
+        const data = await res.json();
+        // PhonePe responses sometimes include redirect URL in different fields
+        const redirectUrl = data?.data?.redirectUrl || data?.redirectUrl || data?.data?.redirectUrl || data?.redirect_uri || data?.paymentUrl;
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+        } else {
+          // fallback: open payment page returned by API if present in another field
+          alert('Payment initiated. Please follow the instructions that were returned by the payment API.');
+          console.log('Payment initiation response:', data);
+        }
+      } catch (err) {
+        console.error('Payment initiation error', err);
+        alert('Failed to initiate payment');
+      }
+    });
+  </script>
+</body>
+</html>

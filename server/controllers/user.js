@@ -45,7 +45,8 @@ async function handleUserlogin(req, res) {
     // Find user by email first so we can detect oauth-only accounts
     const user = await User.findOne({ email });
     if (!user) {
-      return res.render("login", { error: "Invalid username or password" });
+      // include a reset link so users can recover their account if they mistyped their email
+      return res.render("login", { error: `Invalid username or password. <a href="/user/forgot-password">Reset your password</a>.` });
     }
 
     // If user was created via Google and doesn't have a usable password, instruct them to use Google login
@@ -60,7 +61,8 @@ async function handleUserlogin(req, res) {
         // Validate password with bcrypt
         const ok = await bcrypt.compare(password, user.password || '');
         if (!ok) {
-          return res.render("login", { error: "Invalid username or password" });
+          // include reset link to help users who may have forgotten their password
+          return res.render("login", { error: `Invalid username or password. <a href="/user/forgot-password">Reset your password</a>.` });
         }
 
     const token = setUser(user);

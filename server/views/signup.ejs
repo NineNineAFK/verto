@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Signup</title>
+        <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-   <h1>Signup</h1>
+        <%- include('partials/header') %>
+    <div class="container">
+        <h1>Signup</h1>
 
-   <form action="/user/signup" method="post">
-      <label>Name</label>
-      <input type="text" name="name" id="name">
-      <label>Email</label>
-      <input type="email" name="email" id="email">
-      <label>Password</label>
-      <input type="password" name="password" id="password">
-      <button type="submit">Signup</button>
-   </form>
-        <a href="/auth/google/login">Continue with Google</a>
-   <div>
-       <a href="/user/login">Login</a>
-   </div>
+        <form action="/user/signup" method="post">
+            <div>
+                <label>Name</label>
+                <input type="text" name="name" id="name">
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" id="email">
+            </div>
+            <div>
+                <label>Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <div>
+                <button type="submit" class="btn">Signup</button>
+            </div>
+        </form>
+        <div style="margin-top:12px">
+            <a href="/auth/google/login" class="link">Continue with Google</a>
+        </div>
+        <div style="margin-top:8px">
+            <a href="/user/login" class="link">Login</a>
+        </div>
+    </div>
+        <%- include('partials/footer') %>
 </body>
 </html>

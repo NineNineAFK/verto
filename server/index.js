@@ -14,10 +14,13 @@ const userRoute = require("./routes/user")
 const staticRouter= require("./routes/staticRouter");
 const openRouter = require("./routes/openRouter");
 const authRouter = require("./routes/auth");
-//const revewRouter = require("./routes/staticRouter")
+const paymentRouter = require("./routes/payment");
+
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
 app.use(cookieParser());
+// Serve static assets (styles, images)
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
     session({
@@ -45,6 +48,7 @@ app.use("/user", userRoute);
 app.use("/home", restrictToLoggedInUserOnly, staticRouter);
 app.use("/open", openRouter);
 app.use("/auth", authRouter);
+app.use('/payment', paymentRouter);
 
 app.set("view engine","ejs");
 app.set("views", path.resolve("./views"));

@@ -18,6 +18,14 @@ async function createProduct(req, res) {
     const { warehouseId } = req.params;
     const warehouse = await Warehouse.findById(warehouseId);
     if (!warehouse) return res.status(404).send('Warehouse not found');
+    // Prevent adding products to a soft-deleted warehouse
+    if (warehouse.deleted) {
+      // If the client expects JSON (API), return structured error
+      const acceptsJson = (req.get && req.get('Accept') || '').includes('application/json') || req.xhr;
+      if (acceptsJson) return res.status(400).json({ error: 'Deleted warehouses cannot add products' });
+      // Otherwise return a small HTML page that shows an alert and redirects back
+      return res.status(400).send(`<script>alert('Deleted warehouses cannot add products'); window.location='/home/inventory/${warehouseId}';</script>`);
+    }
     if (String(warehouse.owner) !== String(ownerId)) return res.status(403).send('Forbidden');
 
     const parse = createProductSchema.safeParse(req.body);
@@ -184,28 +192,29 @@ async function deleteProduct(req, res) {
     const warehouse = await Warehouse.findById(warehouseId);
     if (!warehouse) return res.status(404).send('Warehouse not found');
     if (String(warehouse.owner) !== String(ownerId)) return res.status(403).send('Forbidden');
-
-    const product = await Product.findOne({ _id: productId, warehouse: warehouseId });
-    if (!product) return res.status(404).send('Product not found');
-
-    // Use transaction to delete product and record audit atomically
+    // Permanently delete the product and record an audit atomically
     const sessionDel = await mongoose.startSession();
     try {
       await sessionDel.withTransaction(async () => {
-        // re-load product in session to ensure consistency
+        // reload product in session
         const prodDoc = await Product.findOne({ _id: productId, warehouse: warehouseId }).session(sessionDel);
         if (!prodDoc) throw Object.assign(new Error('Product not found'), { status: 404 });
 
+        // take a snapshot for the audit
+        const snapshot = prodDoc.toObject ? prodDoc.toObject() : prodDoc;
+
+        // permanently remove the product
         await Product.deleteOne({ _id: productId }).session(sessionDel);
 
+        // write the audit entry (keep product id and snapshot in details)
         await StockAudit.create([
           {
             warehouse: warehouseId,
             product: prodDoc._id,
             user: ownerId,
             action: 'delete',
-            delta: -(prodDoc.stock_quantity || 0),
-            details: { deletedSnapshot: prodDoc }
+            delta: -(snapshot.stock_quantity || 0),
+            details: { deletedSnapshot: snapshot }
           }
         ], { session: sessionDel });
       });
@@ -217,9 +226,9 @@ async function deleteProduct(req, res) {
       console.error('Transaction failed for deleteProduct:', txErr);
       return res.status(500).send('Internal Server Error');
     }
-  // productCount is computed dynamically; no persistent counter update required
-
-  return res.redirect(`/home/inventory/${warehouseId}`);
+    // productCount is computed dynamically; no persistent counter update required
+    
+    return res.redirect(`/home/inventory/${warehouseId}`);
   } catch (err) {
     console.error('Error deleting product:', err);
     return res.status(500).send('Internal Server Error');

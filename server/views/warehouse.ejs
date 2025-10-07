@@ -6,10 +6,13 @@
   <title>Warehouse Details</title>
   <style>
     body{font-family:Arial, sans-serif; background:#f7f7f9; margin:0}
+    /* When viewing a deleted warehouse, dim the details area */
+    .warehouse-detail.deleted{opacity:0.75;filter:grayscale(10%);}
     .container{max-width:1100px;margin:18px auto;padding:16px}
     .card{background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
     .meta{color:#666;margin-top:6px}
     a.button{display:inline-block;padding:8px 12px;background:#007BFF;color:#fff;border-radius:6px;text-decoration:none}
+  .link-button{background:none;border:none;color:#007BFF;text-decoration:underline;cursor:pointer;padding:0;font:inherit}
     .header-right{display:flex;flex-direction:column;align-items:flex-end}
     .header-right .title{font-size:1rem;font-weight:600}
     .header-right .sub{font-size:0.85rem;color:#666}
@@ -36,12 +39,25 @@
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
       <a href="/home/inventory" class="button">← Back to Inventory</a>
       <div style="text-align:right">
-        <div style="font-size:1.1rem;font-weight:600"><%= warehouse.location %></div>
+        <div style="font-size:1.1rem;font-weight:600">
+          <%= warehouse.location %>
+          <% if (warehouse.deleted) { %>
+            <span style="display:inline-block;background:#dcdcdc;color:#444;padding:4px 8px;border-radius:999px;font-size:0.8rem;margin-left:10px">Deleted</span>
+            <div style="margin-top:8px">
+              <form action="/home/inventory/<%= warehouse._id %>/restore" method="post" style="display:inline">
+                <button type="submit" class="link-button">Restore</button>
+              </form>
+              <form action="/home/inventory/<%= warehouse._id %>/permanent-delete" method="post" id="perma-delete-form" style="display:inline; margin-left:8px">
+                <button type="submit" class="link-button">Permanently Delete</button>
+              </form>
+            </div>
+          <% } %>
+        </div>
         <div style="font-size:0.9rem;color:#666">Manager: <%= warehouse.manager || 'N/A' %> — <%= warehouse.managerEmail %></div>
       </div>
     </div>
 
-    <div style="display:flex;gap:20px">
+  <div style="display:flex;gap:20px" class="warehouse-detail <%= warehouse.deleted ? 'deleted' : '' %>">
       <div style="flex:1">
         <h3>Products</h3>
         <div style="margin-bottom:8px">
@@ -85,31 +101,38 @@
       <aside style="width:360px">
         <div class="card">
           <h3>Add Product</h3>
-          <form action="/home/inventory/<%= warehouse._id %>/products/add" method="post">
-            <div>
-              <label>Name</label>
-              <input type="text" name="name" required />
+          <% if (warehouse.deleted) { %>
+            <div style="padding:12px;background:#fafafa;border-radius:6px;color:#666">This warehouse is deleted. You cannot add new products to a deleted warehouse.</div>
+            <div style="margin-top:8px;text-align:right">
+              <button id="deleted-add-btn" type="button">Attempt to Add</button>
             </div>
-            <div>
-              <label>Description</label>
-              <input type="text" name="description" />
-            </div>
-            <div>
-              <label>Price</label>
-              <input type="number" name="price" min="0" step="0.01" />
-            </div>
-            <div>
-              <label>Stock Quantity</label>
-              <input type="number" name="stock_quantity" min="0" value="0" />
-            </div>
-            <div>
-              <label>Low Stock Threshold</label>
-              <input type="number" name="low_stock_threshold" min="0" value="0" />
-            </div>
-            <div style="text-align:right;margin-top:8px">
-              <button type="submit">Add Product</button>
-            </div>
-          </form>
+          <% } else { %>
+            <form action="/home/inventory/<%= warehouse._id %>/products/add" method="post" id="add-product-form">
+              <div>
+                <label>Name</label>
+                <input type="text" name="name" required />
+              </div>
+              <div>
+                <label>Description</label>
+                <input type="text" name="description" />
+              </div>
+              <div>
+                <label>Price</label>
+                <input type="number" name="price" min="0" step="0.01" />
+              </div>
+              <div>
+                <label>Stock Quantity</label>
+                <input type="number" name="stock_quantity" min="0" value="0" />
+              </div>
+              <div>
+                <label>Low Stock Threshold</label>
+                <input type="number" name="low_stock_threshold" min="0" value="0" />
+              </div>
+              <div style="text-align:right;margin-top:8px">
+                <button type="submit">Add Product</button>
+              </div>
+            </form>
+          <% } %>
         </div>
       </aside>
     </div>
@@ -185,6 +208,26 @@
         hideAuditBtn.style.display='none';
         if (mainGrid) mainGrid.style.display = 'grid';
       });
+      // Prevent add-product on deleted warehouses (client-side friendly message)
+      const deletedAddBtn = document.getElementById('deleted-add-btn');
+      if (deletedAddBtn) {
+        deletedAddBtn.addEventListener('click', function(){
+          alert('Deleted warehouses cannot add products');
+        });
+      }
+      // Extra: if the add-product form exists, attach a guard to check warehouse.deleted flag
+      const addForm = document.getElementById('add-product-form');
+      if (addForm) {
+        // nothing special required; server also enforces the check
+      }
+      // permanent delete confirmation
+      const permaForm = document.getElementById('perma-delete-form');
+      if (permaForm) {
+        permaForm.addEventListener('submit', function(ev){
+          const ok = confirm('Permanently delete this warehouse and all its products and audit records? This cannot be undone. Proceed?');
+          if (!ok) ev.preventDefault();
+        });
+      }
     })();
   </script>
 </body>

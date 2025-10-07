@@ -4,105 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home Page</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    nav {
-      display: flex;
-      justify-content: space-between;
-      background-color: #333;
-      padding: 1em;
-    }
-
-    .nav-links {
-      list-style-type: none;
-      display: flex;
-      gap: 1em;
-    }
-
-    .nav-links li {
-      display: inline;
-    }
-
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-    }
-
-    .user-profile a {
-      color: white;
-      text-decoration: none;
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-    }
-
-    .container {
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    .review-button {
-      margin-top: 20px;
-      padding: 15px 30px;
-      font-size: 18px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .review-button:hover {
-      background-color: #0056b3;
-    }
-
-    .logout-form {
-      margin-top: 20px;
-    }
-
-    .logout-button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #FF0000;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .logout-button:hover {
-      background-color: #cc0000;
-    }
-  </style>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav>
-    <ul class="nav-links">
-      <li><a href="/home">Home</a></li>
-      <% if (user) { %>
-        <li><a href="/home/inventory">Inventory</a></li>
-        <li><a href="/home/store">Store</a></li>
-      <% } %>
-    </ul>
-    <div class="user-profile">
-      <a href="/user/profile">User Profile</a>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
+  <%- include('partials/header') %>
   <div class="container">
     <h1>Welcome to the Home Page!</h1>
-  <p>Only logged-in users can see this page.</p>
-    
+    <p>Only logged-in users can see this page.</p>
+
     <form class="logout-form" action="/user/logout" method="get">
-      <button class="logout-button" type="submit">Logout</button>
+      <button class="btn btn-danger" type="submit">Logout</button>
     </form>
   </div>
+  <%- include('partials/footer') %>
 </body>
 </html>

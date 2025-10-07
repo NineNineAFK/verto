@@ -9,7 +9,7 @@ async function getStore(req, res) {
     const myIds = myWarehouses.map(w => w._id);
 
     // Build a proper DB query; if low filter requested, add $expr to compare stock_quantity and low_stock_threshold
-    const match = { warehouse: { $nin: myIds } };
+  const match = { warehouse: { $nin: myIds }, deleted: { $ne: true } };
     if (req.query.low === '1') {
       match.$expr = { $lte: ['$stock_quantity', '$low_stock_threshold'] };
     }

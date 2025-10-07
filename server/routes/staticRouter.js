@@ -19,6 +19,8 @@ router.get("/", (req, res)=>{
   router.post('/inventory/add', createWarehouse);
   router.post('/inventory/:id/delete', deleteWarehouse);
   router.post('/inventory/:id/edit', require('../controllers/warehouseController').updateWarehouse);
+  router.post('/inventory/:id/restore', require('../controllers/warehouseController').restoreWarehouse);
+  router.post('/inventory/:id/permanent-delete', require('../controllers/warehouseController').permanentDeleteWarehouse);
 
   // Product routes within a warehouse
   router.post('/inventory/:warehouseId/products/add', createProduct);
@@ -32,6 +34,17 @@ router.get("/", (req, res)=>{
   // Store route: show products that are NOT owned by the current user
   const { getStore } = require('../controllers/storeController');
   router.get('/store', getStore);
+    // Cart endpoints (user must be authenticated via /home route middleware)
+    const { getCart, addToCart, updateCartItem, removeCartItem } = require('../controllers/cartController');
+    router.get('/cart', async (req, res, next) => {
+      // If client expects JSON (fetch from JS), return JSON via controller
+      if (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1) return getCart(req, res, next);
+      // Otherwise render the cart page
+      return res.render('cart', { user: req.user });
+    });
+    router.post('/cart/add', addToCart);
+    router.post('/cart/:productId', updateCartItem);
+    router.delete('/cart/:productId', removeCartItem);
 
   // Audit trail (owner-only)
   router.get('/inventory/:warehouseId/audit', getAuditForWarehouse);

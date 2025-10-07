@@ -5,6 +5,11 @@ const warehouseSchema = new mongoose.Schema({
   location: { type: String, required: true },
   manager: { type: String, required: true },
   managerEmail: { type: String, required: true },
+  // soft-delete
+  deleted: { type: Boolean, default: false },
+  deletedAt: { type: Date },
+  // tombstone token used to correlate deletes/restores reliably
+  deletedToken: { type: String, index: true },
   // productCount is computed dynamically from Product documents; do not persist here
 }, { timestamps: true });
 

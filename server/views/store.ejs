@@ -4,20 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Store</title>
-  <style>
-    body{font-family:Arial, sans-serif;background:#f7f7f9;margin:0}
-    .container{max-width:1100px;margin:18px auto;padding:16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-    .card{background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
-    .low{border-color:#dc3545;background:#fff5f5}
-    .controls{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-  </style>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <nav style="background:#333;padding:12px;color:#fff">
-    <a href="/home" style="color:#fff;margin-right:12px">Home</a>
-    <a href="/home/inventory" style="color:#fff">Inventory</a>
-  </nav>
+  <%- include('partials/header') %>
   <div class="container">
     <h1>Store</h1>
     <div class="controls">
@@ -28,7 +18,14 @@
     <div id="products" class="grid"></div>
   </div>
 
+  <%- include('partials/footer') %>
+
   <script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const cartBtn = document.getElementById('cartBtn');
+      if (cartBtn) cartBtn.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='/home/cart'; });
+    });
+
     const productsEl = document.getElementById('products');
     const lowOnly = document.getElementById('lowOnly');
     const refreshBtn = document.getElementById('refreshBtn');
@@ -60,9 +57,68 @@
           <div style="margin-top:8px;color:#666">Stock: ${p.stock_quantity||0} | Low threshold: ${p.low_stock_threshold||0}</div>
           <div style="margin-top:8px;color:#666">Warehouse: ${p.warehouse && p.warehouse.location ? escapeHtml(p.warehouse.location) : 'N/A'}</div>
           <div style="margin-top:6px;color:#666">Owner: ${p.warehouse && p.warehouse.owner ? escapeHtml(p.warehouse.owner.name || '') : ''}</div>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <button data-product="${p._id}" class="decQty">-</button>
+            <input data-product="${p._id}" class="qtyInput" type="number" min="1" value="1" style="width:50px;text-align:center" data-available="${p.stock_quantity||0}" />
+            <button data-product="${p._id}" class="incQty">+</button>
+            <button data-product="${p._id}" class="addToCart">Add to cart</button>
+            <div class="stockHint" data-prod="${p._id}" style="color:#666;margin-left:8px">Available: ${p.stock_quantity||0}</div>
+          </div>
         </div>
       `).join('');
+
+      // wire controls
+      document.querySelectorAll('.incQty').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = btn.getAttribute('data-product');
+          const input = document.querySelector(`input.qtyInput[data-product="${id}"]`);
+          const avail = parseInt(input.dataset.available || '0', 10) || 0;
+          let val = parseInt(input.value || '1', 10);
+          if (val < avail) { input.value = val + 1; }
+          else { alert('Cannot add more than available stock'); }
+        });
+      });
+
+      document.querySelectorAll('.decQty').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = btn.getAttribute('data-product');
+          const input = document.querySelector(`input.qtyInput[data-product="${id}"]`);
+          let val = parseInt(input.value || '1', 10);
+          if (val > 1) input.value = val - 1;
+        });
+      });
+
+      document.querySelectorAll('.addToCart').forEach(btn=>{
+        btn.addEventListener('click', async (e)=>{
+          const id = btn.getAttribute('data-product');
+          const input = document.querySelector(`input.qtyInput[data-product="${id}"]`);
+          const q = parseInt(input.value||'1',10);
+          // check stock before sending
+          const stock = parseInt(input.dataset.available || '0', 10) || 0;
+          if (q > stock) { alert('Requested quantity exceeds available stock'); return; }
+          try{
+            const res = await fetch('/home/cart/add', { method: 'POST', headers: {'Content-Type':'application/json', 'Accept':'application/json'}, body: JSON.stringify({ productId: id, qty: q }) });
+            if (!res.ok) {
+              // try to parse JSON error body; fall back to text
+              try {
+                const err = await res.json();
+                if (err && typeof err.available !== 'undefined') {
+                  alert(`Exceeded current stock, current stock value: ${err.available}`);
+                } else {
+                  alert(err && (err.error || err.message) ? (err.error || err.message) : 'Failed to add to cart');
+                }
+              } catch (parseErr) {
+                const txt = await res.text().catch(()=>null);
+                alert(txt || 'Failed to add to cart');
+              }
+              return;
+            }
+            alert('Added to cart');
+          }catch(e){ alert('Failed to add to cart'); }
+        });
+      });
     }
+
 
     function escapeHtml(str){
       return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
