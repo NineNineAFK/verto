@@ -1,6 +1,6 @@
 <nav class="site">
   <div class="nav-left">
-    <a href="/home">Home</a>
+    <a href="<%= (typeof openHome !== 'undefined' && openHome) ? '/' : '/home' %>">Home</a>
     <a href="/home/inventory">Inventory</a>
     <a href="/home/store">Store</a>
   </div>

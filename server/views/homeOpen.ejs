@@ -4,10 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home Page</title>
-
-
+</head>
+<link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  open home page
-  any user can view this page irrespective of if they are logged in or not. 
+  <%- include('partials/header') %>
+  <div class="container">
+    <h1>Welcome!</h1>
+    <p>Any user can view this page, whether or not they are logged in.</p>
+
+   <p class="note">
+      Hi Verto — I'm Aaditya. You won't be able to use Google authentication, the PhonePe
+      payment integration or the forget password feature in this environment because the required credentials are not
+      provided. I recommend signing in with your email and password.
+    </p>
+
+    <p class="note">
+      For a detailed walkthrough of the integrations and APIs, please watch the Loom
+      video I shared: <a href="https://www.loom.com/share/adf5fdac5b9b4da4a80e2bb585b9fa9b?sid=c6a8f183-7255-4b94-89db-0e56f380f131" target="_blank" rel="noopener noreferrer">Watch the Loom demo</a>.
+      It demonstrates Google authentication and the PhonePe payment flow using an
+      environment that contains the required credentials.
+      I have given a lot of time and efforts to scale it from a basic CRUD app to a multi vendor 
+      platform. I hope you guys sit through the video and watch me expain it. 
+    </p>
+
+    <a class="btn btn-primary" href="/user/login">Login</a>
+  </div>
+
+  <%- include('partials/footer') %>
 

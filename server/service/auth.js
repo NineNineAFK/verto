@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const secret = process.env.JWT_SECRET || 'dev-jwt-secret-change-me';
+// Hardcoded JWT secret 
+const secret = 'Aaditya@3737';
 
 function setUser(user){
     return jwt.sign({

@@ -15,16 +15,17 @@ const staticRouter= require("./routes/staticRouter");
 const openRouter = require("./routes/openRouter");
 const authRouter = require("./routes/auth");
 const paymentRouter = require("./routes/payment");
+const rootRouter = require("./routes/root");
 
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
 app.use(cookieParser());
-// Serve static assets (styles, images)
-app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(
     session({
-      secret: process.env.SESSION_SECRET || 'dev-session-secret',
+      // Hardcoded session secret
+      secret: 'Aaditya@3737',
       resave: false,
       saveUninitialized: false,
     })
@@ -32,13 +33,10 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-// flash middleware wiring (uses connect-flash) — middleware module expects the app
 try {
   const setupFlash = require('./middlewares/flash');
   if (typeof setupFlash === 'function') setupFlash(app);
 } catch (e) {
-  // if flash middleware isn't present or fails, continue without it
   console.error('Flash middleware setup failed:', e && e.message);
 }
 
@@ -49,6 +47,7 @@ app.use("/home", restrictToLoggedInUserOnly, staticRouter);
 app.use("/open", openRouter);
 app.use("/auth", authRouter);
 app.use('/payment', paymentRouter);
+app.use('/', rootRouter);
 
 app.set("view engine","ejs");
 app.set("views", path.resolve("./views"));

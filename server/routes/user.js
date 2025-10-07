@@ -11,14 +11,14 @@ const { getUserProfile } = require('../controllers/user');
 router.post("/",);
 
 router.get("/signup", (req, res) => {
-    res.render("signup");
+    res.render("signup", { openHome: true });
 });
 
 router.post("/signup", handleUserSignUP);
 router.post("/login", handleUserlogin);
 router.get("/login", (req, res) => {
     // Pass any query messages (from redirects) or flash-like params into the view
-    res.render("login", { message: req.query.message, error: req.query.error });
+    res.render("login", { message: req.query.message, error: req.query.error, openHome: true });
 });
 
 // Logout route
